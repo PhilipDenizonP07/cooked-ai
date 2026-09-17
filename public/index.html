@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CookedAI | Savage Gen-Z Roaster</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%200%20100%20100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Navbar -->
+    <header class="navbar">
+      <div class="brand">
+        <span class="brand-flame">🔥</span>
+        <span class="mono">CookedAI</span>
+        <span class="brand-tag">MALLU GEN-Z</span>
+      </div>
+      <div class="nav-actions">
+        <button id="btn-sound" class="btn-icon" title="Toggle Sound FX">
+          <span id="sound-icon">🔊</span> Sound
+        </button>
+        <button id="btn-api-modal" class="btn-icon" title="Configure AI API Key (Gemini 3.6 or OpenAI)">
+          <span class="key-status-dot" id="key-dot"></span>
+          <span id="key-btn-label">AI Key (Free Tier)</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Language & Nuclear Spice Modifiers Toolbar -->
+    <div class="toolbar-banner mono">
+      <div class="toolbar-group">
+        <span class="toolbar-label">🗣️ Dialect:</span>
+        <div class="toggle-pill-group">
+          <button class="toggle-pill active" id="pill-lang-manglish" data-lang="manglish">
+            🌴 Gen-Z Manglish (Mallu)
+          </button>
+          <button class="toggle-pill" id="pill-lang-english" data-lang="english">
+            🌐 English
+          </button>
+        </div>
+      </div>
+
+      <div class="toolbar-group">
+        <span class="toolbar-label">🌶️ Spice Level:</span>
+        <div class="toggle-pill-group">
+          <button class="toggle-pill" id="pill-spice-sensitive" data-spice="sensitive" title="Gentle roast, wholesome teasing, ZERO bad words">
+            🌸 Sensitive
+          </button>
+          <button class="toggle-pill" id="pill-spice-savage" data-spice="savage" title="Wild aggressive roast">
+            🔥 Savage
+          </button>
+          <button class="toggle-pill nuclear-active" id="pill-spice-nuclear" data-spice="nuclear" title="Absolutely aggressive, total ego death">
+            ☢️ NUCLEAR
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 1: WELCOME & GENDER SELECTION -->
+    <main id="view-welcome" class="view active">
+      <section class="hero-card">
+        <div class="hero-badge mono">☢️ WARNING: ZERO MERCY PSYCHOLOGICAL OFFENSE</div>
+        <h1 class="hero-title">GET PSYCHOLOGICALLY <span>EVINCED.</span></h1>
+        <p class="hero-desc">
+          Answer 5 fresh, non-repetitive personality questions tailored to your vibe. AI will diagnose your delusions, weaponize your coping mechanisms, and eviscerate your ego with lethal precision.
+        </p>
+
+        <!-- The Supreme Durandham Jury Showcase -->
+        <div class="council-showcase-card">
+          <div class="council-header mono">
+            <span class="pulse-dot"></span>
+            <span>PRESIDING COUNCIL: THE DURANDHAM JURY</span>
+          </div>
+          <img src="images/council_banner.jpg" alt="Council of Roasters" class="council-banner-img" />
+          <div class="council-judge-strip mono">
+            <div class="judge-chip">
+              <img src="images/judge_namaste.png" class="judge-avatar" alt="Judge Pranaamam" />
+              <div class="judge-text-wrap">
+                <span class="judge-name">Judge Pranaamam 🕊️</span>
+                <span class="judge-quote">"Praying for your ego..."</span>
+              </div>
+            </div>
+            <div class="judge-chip">
+              <img src="images/judge_dramatic.png" class="judge-avatar" alt="Judge Aavesham" />
+              <div class="judge-text-wrap">
+                <span class="judge-name">Judge Aavesham 🌌</span>
+                <span class="judge-quote">"Ceiling gaze of psychic shock"</span>
+              </div>
+            </div>
+            <div class="judge-chip">
+              <img src="images/judge_field.jpg" class="judge-avatar" alt="Judge Harithabham" />
+              <div class="judge-text-wrap">
+                <span class="judge-name">Judge Harithabham 🌾</span>
+                <span class="judge-quote">"Touch grass ambassador"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Gender Radio Buttons -->
+        <div class="gender-section">
+          <div class="gender-title mono">
+            <span>⚡ Select Target Vibe:</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted);">Non-repetitive personalized questions</span>
+          </div>
+
+          <div class="gender-radio-grid">
+            <!-- Guy -->
+            <label class="gender-radio-label">
+              <input type="radio" name="gender-choice" value="guy" checked>
+              <div class="gender-box">
+                <span class="gender-icon">👦</span>
+                <span class="gender-name mono">Guy / Bro</span>
+                <span class="gender-desc">Sigma cope, gym myths, ride flex, lone wolf excuses</span>
+              </div>
+            </label>
+
+            <!-- Girl -->
+            <label class="gender-radio-label">
+              <input type="radio" name="gender-choice" value="girl">
+              <div class="gender-box">
+                <span class="gender-icon">👧</span>
+                <span class="gender-name mono">Girl / Sis</span>
+                <span class="gender-desc">Pinterest room chaos, FBI group chat, retail therapy</span>
+              </div>
+            </label>
+
+            <!-- Neutral / Other -->
+            <label class="gender-radio-label">
+              <input type="radio" name="gender-choice" value="neutral">
+              <div class="gender-box">
+                <span class="gender-icon">✨</span>
+                <span class="gender-name mono">Neutral / Other</span>
+                <span class="gender-desc">Aesthetic crisis, parasocial loops, reply paralysis</span>
+              </div>
+            </label>
+          </div>
+
+          <!-- Ethical Safeguard Notice -->
+          <div class="safeguard-note mono">
+            🛡️ <span><strong>Zero Hate Policy</strong>: 100% savage on vanity, unearned ego, and excuses. 0% misogyny, racism, homophobia, or transphobia.</span>
+          </div>
+        </div>
+
+        <button id="btn-start-quiz" class="btn-primary">
+          <span>COMMENCE PSYCHOLOGICAL AUTOPSY ➔</span>
+        </button>
+      </section>
+    </main>
+
+    <!-- VIEW 2: 5-QUESTION QUIZ FLOW -->
+    <section id="view-quiz" class="view">
+      <div class="quiz-header">
+        <div class="quiz-top-info mono">
+          <span class="quiz-pack-tag" id="active-pack-badge">Target: Guy / Bro</span>
+          <span class="quiz-step-count" id="quiz-step-text">Question 1 of 5</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-bar"></div>
+        </div>
+      </div>
+
+      <div class="quiz-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div class="q-badge mono" id="q-category">THE NONCHALANT COPE</div>
+          <button id="btn-shuffle-questions" class="btn-icon" style="padding: 4px 8px; font-size: 0.75rem;" title="Get 5 completely new random questions">
+            🔀 New Questions
+          </button>
+        </div>
+
+        <h2 class="q-prompt" id="q-prompt">Loading question...</h2>
+        <p class="q-subtext" id="q-subtext"></p>
+
+        <div class="quick-picks-label mono">⚡ Quick Confessions (or type your own honest sin):</div>
+        <div class="quick-picks-container" id="quick-picks">
+          <!-- Populated dynamically with chips -->
+        </div>
+
+        <div class="answer-input-container">
+          <textarea 
+            id="answer-input" 
+            class="answer-textarea" 
+            placeholder="Confess your honest sin here..."
+          ></textarea>
+        </div>
+
+        <div class="quiz-controls">
+          <button id="btn-prev-q" class="btn-secondary" style="display: none;">
+            ← Back
+          </button>
+          <div class="controls-right">
+            <button id="btn-random-pick" class="btn-secondary" title="Pick a random shameful answer">
+              🎲 Randomize
+            </button>
+            <button id="btn-next-q" class="btn-primary" style="padding: 12px 28px; font-size: 1rem;">
+              <span id="next-btn-text">Next Question ➔</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: COOKING / LOADING ANIMATION -->
+    <section id="view-cooking" class="view">
+      <div class="cooking-card">
+        <div style="display: flex; justify-content: center; gap: 14px; margin-bottom: 18px;">
+          <img src="images/judge_namaste.png" class="judge-avatar" style="width: 52px; height: 52px; border-width: 2px; border-color: var(--neon-cyan); animation: bounce 0.9s infinite alternate;" />
+          <img src="images/judge_dramatic.png" class="judge-avatar" style="width: 52px; height: 52px; border-width: 2px; border-color: var(--neon-purple); animation: bounce 0.9s infinite alternate 0.15s;" />
+          <img src="images/judge_field.jpg" class="judge-avatar" style="width: 52px; height: 52px; border-width: 2px; border-color: var(--neon-green); animation: bounce 0.9s infinite alternate 0.3s;" />
+        </div>
+        <h2 class="cooking-title mono">THE DURANDHAM JURY IS DELIBERATING...</h2>
+        <div class="terminal-box mono" id="cooking-terminal">
+          > Booting AI psychoanalysis engine...
+        </div>
+        <p class="cooking-sub">Consulting the three judges to synthesize your ego death...</p>
+      </div>
+    </section>
+
+    <!-- VIEW 4: ROAST RESULTS -->
+    <section id="view-result" class="view">
+      <div class="roast-card">
+        <div id="demo-banner" class="demo-notice-box" style="display: none;">
+          ⚡ <strong>DEMO PREVIEW</strong>: Add a free Gemini key in the top-right settings to unleash live, unrestrained Gemini 3.6 savagery!
+        </div>
+
+        <!-- Read Out Loud (TTS) Bar -->
+        <div class="tts-player-bar mono">
+          <div class="tts-left">
+            <div class="equalizer" id="tts-equalizer">
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+            </div>
+            <div class="tts-info-wrap">
+              <span class="tts-label" id="tts-status-text">🔊 Audio: Ready</span>
+            </div>
+          </div>
+          <div class="tts-controls">
+            <button class="btn-tts btn-tts-play" id="btn-tts-play">
+              ▶ Read Out Loud
+            </button>
+            <button class="btn-tts" id="btn-tts-pause" style="display: none;">
+              ⏸ Pause
+            </button>
+            <button class="btn-tts" id="btn-tts-stop" style="display: none;">
+              ⏹ Stop
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="roast-header-stats">
+          <div class="stat-box">
+            <div class="stat-label mono">Aura Penalty</div>
+            <div class="stat-val aura mono" id="stat-aura">-500,000</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label mono">Cooked Status</div>
+            <div class="stat-val cooked mono" id="stat-cooked">100% Karinja Porotta</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label mono">Spice Level</div>
+            <div class="stat-val aura mono" id="stat-spice" style="font-size: 0.95rem;">NUCLEAR ☢️</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label mono">Dialect</div>
+            <div class="stat-val lang mono" id="stat-lang">Manglish</div>
+          </div>
+        </div>
+
+        <!-- Diagnosis Title -->
+        <div class="diagnosis-banner">
+          <div class="diagnosis-title mono">OFFICIAL PSYCHOLOGICAL DIAGNOSIS</div>
+          <div class="diagnosis-text mono" id="roast-diagnosis">Stage 5 Chronic Durandham</div>
+        </div>
+
+        <!-- Deep Roast Text -->
+        <div class="deep-roast-body" id="roast-body">
+          <!-- Roast paragraphs stream in here -->
+        </div>
+
+        <!-- Lethal One-Liner Box -->
+        <div class="lethal-quote-box">
+          <div class="quote-tag mono">
+            <span>☠️ THE LETHAL MIC DROP</span>
+          </div>
+          <div class="quote-text" id="roast-micdrop">
+            "Ninte jeevitham oru sad bgm kooti ittathu poleyaanu."
+          </div>
+        </div>
+
+        <!-- Prescribed Action -->
+        <div class="prescribed-box">
+          <div class="prescribed-tag mono">🌱 PRESCRIBED REHABILITATION (TOUCH GRASS / VEETIL IRIKKU)</div>
+          <div class="prescribed-text" id="roast-prescribed">
+            Achanodu poyi sorry para, enittu veettile muttam adichu vaaru.
+          </div>
+        </div>
+
+        <!-- The Durandham Jury Individual Concurrences -->
+        <div class="jury-verdict-section">
+          <div class="jury-title mono">
+            <span>⚖️ THE DURANDHAM JURY INDIVIDUAL CONCURRENCES:</span>
+          </div>
+          <div class="jury-grid mono">
+            <div class="jury-card">
+              <img src="images/judge_namaste.png" alt="Judge Pranaamam" class="jury-card-avatar" />
+              <div class="jury-card-content">
+                <div class="jury-card-name">Judge Pranaamam 🕊️</div>
+                <div class="jury-card-verdict" id="verdict-namaste">"Pranaamam. Njan ninte aathmavinuvendi prarthikkaam, mone."</div>
+              </div>
+            </div>
+
+            <div class="jury-card">
+              <img src="images/judge_dramatic.png" alt="Judge Aavesham" class="jury-card-avatar" />
+              <div class="jury-card-content">
+                <div class="jury-card-name">Judge Aavesham 🌌</div>
+                <div class="jury-card-verdict" id="verdict-dramatic">"Looking at the ceiling lights because your answers caused permanent retina damage."</div>
+              </div>
+            </div>
+
+            <div class="jury-card">
+              <img src="images/judge_field.jpg" alt="Judge Harithabham" class="jury-card-avatar" />
+              <div class="jury-card-content">
+                <div class="jury-card-name">Judge Harithabham 🌾</div>
+                <div class="jury-card-verdict" id="verdict-field">"I am literally standing in this paddy field waiting for you to come touch grass."</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="roast-actions">
+          <button id="btn-copy-roast" class="btn-primary" style="padding: 12px 24px; font-size: 0.95rem;">
+            📋 Copy Entire Roast
+          </button>
+          <button id="btn-restart" class="btn-secondary">
+            🔄 Cook Another Victim
+          </button>
+          <button id="btn-vine-boom" class="btn-secondary" title="Play random roast sound meme (FAH, Instagram Thud, GOP GOP GOP)">
+            💥 Meme SFX
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- API Key Modal -->
+  <div class="modal-backdrop" id="api-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title mono">⚙️ AI Model Configuration</h3>
+        <button class="btn-close" id="btn-close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label mono">Choose AI Engine</label>
+          <select id="modal-provider-select" class="form-select mono">
+            <option value="gemini">💎 Google Gemini (Recommended - 100% FREE Tier)</option>
+            <option value="openai">🟢 OpenAI ChatGPT</option>
+          </select>
+        </div>
+
+        <div id="gemini-help-box" class="demo-notice-box" style="margin-bottom: 16px; background: rgba(0, 240, 255, 0.08); border-color: var(--neon-cyan); color: #e0f2fe;">
+          💡 <strong>Need a Free Gemini Key?</strong><br>
+          Get your free key in 30 seconds at <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--neon-cyan); font-weight: bold; text-decoration: underline;">Google AI Studio</a>. No credit card required!<br>
+          <div style="font-size: 0.8rem; color: #ec4899; margin-top: 6px; font-weight: 700;">
+            🎙️ Powers realistic AI speech to read Malayalam transliterations (Manglish) with natural Indian accents!
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label mono" id="label-api-key">API Key</label>
+          <input 
+            type="password" 
+            id="modal-api-key-input" 
+            class="form-input mono" 
+            placeholder="Paste your key here (AIzaSy... or sk-...)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label mono">Model Selection</label>
+          <select id="modal-model-select" class="form-select mono">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div class="form-group" id="custom-model-group" style="display: none;">
+          <label class="form-label mono">Exact Model Identifier</label>
+          <input 
+            type="text" 
+            id="custom-model-input" 
+            class="form-input mono" 
+            placeholder="e.g. gemini-3.6, gemini-3.6-flash, gemini-3.8-flash"
+          />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-clear-key">Remove Key</button>
+        <button class="btn-primary" id="btn-save-key" style="padding: 10px 20px; font-size: 0.9rem;">
+          Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast mono" id="toast">Copied to clipboard! 📋</div>
+
+  <!-- App Scripts -->
+  <script src="sounds.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
