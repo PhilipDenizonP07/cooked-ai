@@ -135,8 +135,7 @@
       if (!cleanText) return false;
       if (this.prewarmedAudio && this.prewarmedText === cleanText) return true;
 
-      const userKey = apiKey || localStorage.getItem('cooked_api_key');
-      if (!userKey || userKey.trim() === '') return false;
+      const userKey = apiKey || localStorage.getItem('cooked_api_key') || '';
 
       this.prewarmedText = cleanText;
       this.isPrefetching = true;
@@ -215,45 +214,39 @@
         return;
       }
 
-      const userKey = apiKey || localStorage.getItem('cooked_api_key');
+      const userKey = apiKey || localStorage.getItem('cooked_api_key') || '';
 
-      // Case 3: Fetch directly from /api/tts
-      if (userKey && userKey.trim() !== '') {
-        try {
-          this.isLoading = true;
-          if (onLoading) onLoading("🔊 Loading audio...");
+      // Case 3: Fetch directly from /api/tts (uses Gemini live synthesis or Isha Voice Pack)
+      try {
+        this.isLoading = true;
+        if (onLoading) onLoading("🔊 Loading Isha's voice...");
 
-          const res = await fetch('/api/tts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              text: cleanText,
-              voice: 'Kore',
-              apiKey: userKey,
-              language: currentLanguage
-            })
-          });
+        const res = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: cleanText,
+            voice: 'Kore',
+            apiKey: userKey,
+            language: currentLanguage
+          })
+        });
 
-          const data = await res.json();
-          this.isLoading = false;
+        const data = await res.json();
+        this.isLoading = false;
 
-          if (res.ok && data.audioUrl) {
-            const audio = new Audio(data.audioUrl);
-            this.prewarmedAudio = audio;
-            this.prewarmedText = cleanText;
-            this.playAudioInstance(audio, onStart, onEnd);
-            return;
-          } else {
-            console.warn('[TTS Warning]', data.error || data.message);
-            showToast(data.message || "Failed to generate audio, falling back...");
-          }
-        } catch (apiErr) {
-          console.warn('[TTS Fetch Error]', apiErr);
-          this.isLoading = false;
+        if (res.ok && data.audioUrl) {
+          const audio = new Audio(data.audioUrl);
+          this.prewarmedAudio = audio;
+          this.prewarmedText = cleanText;
+          this.playAudioInstance(audio, onStart, onEnd);
+          return;
+        } else {
+          console.warn('[TTS Warning]', data.error || data.message);
         }
-      } else {
-        showToast("🔑 Add your free Gemini API Key in Settings for live voice generation!");
-        openApiModal();
+      } catch (apiErr) {
+        console.warn('[TTS Fetch Error]', apiErr);
+        this.isLoading = false;
       }
 
       // Fallback: local browser speech synthesis
@@ -575,17 +568,14 @@
       currentRoastPayload = roastResult;
 
       // Coordinate: Only show roast result after voice is also ready!
-      const userKey = apiKey || localStorage.getItem('cooked_api_key');
-      if (userKey && userKey.trim() !== '') {
-        const fullSpeech = `${roastResult.diagnosis || ''}. ${roastResult.deep_roast || ''}. Final verdict: ${roastResult.lethal_one_liner || ''}. Prescribed action: ${roastResult.prescribed_l || ''}`;
-        cookingTerminal.textContent = "> Verdict reached! Synthesizing Durandham Jury voice audio...";
+      const fullSpeech = `${roastResult.diagnosis || ''}. ${roastResult.deep_roast || ''}. Final verdict: ${roastResult.lethal_one_liner || ''}. Prescribed action: ${roastResult.prescribed_l || ''}`;
+      cookingTerminal.textContent = "> Verdict reached! Synthesizing Durandham Jury voice audio...";
 
-        // Wait for voice to finish generation and buffering (with 5.5s safety timeout)
-        await Promise.race([
-          tts.prewarmAsync(fullSpeech),
-          new Promise(resolve => setTimeout(resolve, 5500))
-        ]);
-      }
+      // Wait for voice to finish generation and buffering (with 5.5s safety timeout)
+      await Promise.race([
+        tts.prewarmAsync(fullSpeech),
+        new Promise(resolve => setTimeout(resolve, 5500))
+      ]);
 
       clearInterval(cookingInterval);
       displayRoastResult(roastResult);

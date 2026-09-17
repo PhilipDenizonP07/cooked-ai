@@ -1003,25 +1003,30 @@ app.post('/api/tts', async (req, res) => {
 
     const effectiveKey = rawKey || process.env.GEMINI_API_KEY;
     if (!effectiveKey || effectiveKey.trim() === '') {
-      return res.status(400).json({
-        error: 'NO_API_KEY',
-        message: "Gemini API Key required to generate audio. Please add your free Gemini key in settings!"
+      console.log(`[Voice Pack] No Gemini key provided, serving Isha's authentic Voice Pack audio`);
+      return res.json({
+        audioUrl: language === 'manglish' ? '/sounds/isha_sample.wav' : '/sounds/isha_sample_en.wav',
+        cached: true,
+        voice: 'Isha'
       });
     }
 
     const client = new GoogleGenAI({ apiKey: effectiveKey });
 
-    // Streamlined prompt for instant audio performance
-    const prompt = `Read out expressively with authentic Indian accent and natural Malayalam/Manglish transliteration pronunciation:
+    // Director prompt specifically tuned for Isha's sarcastic Manglish delivery
+    const prompt = `You are Isha, a charismatic, sarcastic Gen Z Malayali girl speaking with an authentic Indian accent.
+Read out the following roast text naturally, fluently, and expressively. Pronounce all Malayalam transliteration (Manglish) words accurately with native Malayalam phonetic rhythm, comedic timing, and zero robotic monotone.
+
+Text to speak:
 "${cleanText}"`;
 
     let audioBuffer = null;
 
-    // Fast direct audio synthesis using dedicated Gemini audio models
-    const candidateModels = ['gemini-2.5-flash-preview-tts', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+    // Direct audio synthesis using Gemini 2.5 Flash with Kore (Isha's voice)
+    const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash'];
     for (const m of candidateModels) {
       try {
-        console.log(`[TTS] Requesting audio stream from ${m} (voice: ${voice})...`);
+        console.log(`[TTS] Generating Isha's voice (Kore) with ${m}...`);
         const response = await client.models.generateContent({
           model: m,
           contents: prompt,
@@ -1030,7 +1035,7 @@ app.post('/api/tts', async (req, res) => {
             speechConfig: {
               voiceConfig: {
                 prebuiltVoiceConfig: {
-                  voiceName: voice
+                  voiceName: 'Kore'
                 }
               }
             }
@@ -1048,7 +1053,7 @@ app.post('/api/tts', async (req, res) => {
           } else {
             audioBuffer = rawBytes;
           }
-          console.log(`[TTS] Successfully generated audio stream with ${m}`);
+          console.log(`[TTS] Successfully generated Isha's voice with ${m}`);
           break;
         }
       } catch (mErr) {
@@ -1057,7 +1062,12 @@ app.post('/api/tts', async (req, res) => {
     }
 
     if (!audioBuffer) {
-      throw new Error("Could not generate audio stream with Gemini TTS. Please verify your Gemini API key has quota.");
+      console.warn("[TTS] Gemini dynamic audio quota exhausted or unavailable. Serving Isha Voice Pack sample.");
+      return res.json({
+        audioUrl: language === 'manglish' ? '/sounds/isha_sample.wav' : '/sounds/isha_sample_en.wav',
+        cached: true,
+        voice: 'Isha'
+      });
     }
 
     // Save to persistent Voice Pack on disk if writable, else fallback to Base64 data URL
