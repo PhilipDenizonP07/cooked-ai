@@ -1011,73 +1011,48 @@ app.post('/api/tts', async (req, res) => {
 
     const client = new GoogleGenAI({ apiKey: effectiveKey });
 
-    // Director's prompt for speech performance
-    const prompt = `Read out the following text naturally and expressively in an authentic Indian accent, with fluent and accurate pronunciation of Malayalam transliteration (Manglish) words and Gen Z sarcasm. Deliver it with magnetic, witty comedic timing.
-
-Text:
+    // Streamlined prompt for instant audio performance
+    const prompt = `Read out expressively with authentic Indian accent and natural Malayalam/Manglish transliteration pronunciation:
 "${cleanText}"`;
 
     let audioBuffer = null;
 
-    // Strategy 1: Interactions API with gemini-3.1-flash-tts-preview
-    try {
-      console.log(`[TTS] Requesting audio from Gemini interactions (voice: ${voice})...`);
-      const interaction = await client.interactions.create({
-        model: 'gemini-3.1-flash-tts-preview',
-        input: prompt,
-        response_format: { type: 'audio' },
-        generation_config: {
-          speech_config: [
-            { voice: voice }
-          ]
-        }
-      });
-
-      if (interaction?.output_audio?.data) {
-        const rawBytes = Buffer.from(interaction.output_audio.data, 'base64');
-        audioBuffer = pcmToWav(rawBytes, 24000, 1, 16);
-      }
-    } catch (interactionErr) {
-      console.warn('[TTS] Interactions API failed, trying generateContent fallback:', interactionErr.message);
-    }
-
-    // Strategy 2: generateContent fallback with gemini-2.5-flash / gemini-2.0-flash
-    if (!audioBuffer) {
-      console.log(`[TTS] Trying generateContent fallback for audio...`);
-      const fallbackModels = ['gemini-2.5-flash', 'gemini-2.0-flash'];
-      for (const m of fallbackModels) {
-        try {
-          const response = await client.models.generateContent({
-            model: m,
-            contents: prompt,
-            config: {
-              responseModalities: ['AUDIO'],
-              speechConfig: {
-                voiceConfig: {
-                  prebuiltVoiceConfig: {
-                    voiceName: voice
-                  }
+    // Fast direct audio synthesis using dedicated Gemini audio models
+    const candidateModels = ['gemini-2.5-flash-preview-tts', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+    for (const m of candidateModels) {
+      try {
+        console.log(`[TTS] Requesting audio stream from ${m} (voice: ${voice})...`);
+        const response = await client.models.generateContent({
+          model: m,
+          contents: prompt,
+          config: {
+            responseModalities: ['AUDIO'],
+            speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: {
+                  voiceName: voice
                 }
               }
             }
-          });
-
-          const part = response.candidates?.[0]?.content?.parts?.find(p => p.inlineData && p.inlineData.mimeType?.startsWith('audio/'));
-          if (part && part.inlineData?.data) {
-            const rawBytes = Buffer.from(part.inlineData.data, 'base64');
-            const partMime = part.inlineData.mimeType || 'audio/pcm;rate=24000';
-            if (partMime.includes('pcm')) {
-              const rateMatch = partMime.match(/rate=(\d+)/);
-              const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
-              audioBuffer = pcmToWav(rawBytes, sampleRate, 1, 16);
-            } else {
-              audioBuffer = rawBytes;
-            }
-            break;
           }
-        } catch (mErr) {
-          console.warn(`[TTS] ${m} audio fallback failed:`, mErr.message);
+        });
+
+        const part = response.candidates?.[0]?.content?.parts?.find(p => p.inlineData && p.inlineData.mimeType?.startsWith('audio/'));
+        if (part && part.inlineData?.data) {
+          const rawBytes = Buffer.from(part.inlineData.data, 'base64');
+          const partMime = part.inlineData.mimeType || 'audio/pcm;rate=24000';
+          if (partMime.includes('pcm')) {
+            const rateMatch = partMime.match(/rate=(\d+)/);
+            const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
+            audioBuffer = pcmToWav(rawBytes, sampleRate, 1, 16);
+          } else {
+            audioBuffer = rawBytes;
+          }
+          console.log(`[TTS] Successfully generated audio stream with ${m}`);
+          break;
         }
+      } catch (mErr) {
+        console.warn(`[TTS] ${m} audio generation attempt failed:`, mErr.message);
       }
     }
 

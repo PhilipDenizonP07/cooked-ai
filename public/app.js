@@ -125,51 +125,72 @@
       return langMode === 'manglish' ? (malayalamVoice || indianVoice || defaultVoice) : (indianVoice || defaultVoice);
     }
 
-    // Pre-warm the voice pack audio in background to eliminate initial lag
-    prewarm(text) {
+    // Pre-warm the voice pack audio and wait until buffered for instant 0ms playback
+    async prewarmAsync(text) {
       const cleanText = text
         .replace(/[*_#~`]/g, '')
         .replace(/"/g, '')
         .trim();
 
-      if (!cleanText || (this.prewarmedText === cleanText && this.prewarmedAudio)) {
-        return;
-      }
+      if (!cleanText) return false;
+      if (this.prewarmedAudio && this.prewarmedText === cleanText) return true;
 
       const userKey = apiKey || localStorage.getItem('cooked_api_key');
-      if (!userKey || userKey.trim() === '') return;
+      if (!userKey || userKey.trim() === '') return false;
 
       this.prewarmedText = cleanText;
       this.isPrefetching = true;
 
-      fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: cleanText,
-          voice: 'Kore',
-          apiKey: userKey,
-          language: currentLanguage
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
+      try {
+        const res = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: cleanText,
+            voice: 'Kore',
+            apiKey: userKey,
+            language: currentLanguage
+          })
+        });
+
+        if (!res.ok) throw new Error(`TTS server returned status ${res.status}`);
+        const data = await res.json();
+
         if (data.audioUrl) {
-          const audio = new Audio(data.audioUrl);
-          audio.preload = 'auto';
-          this.prewarmedAudio = audio;
-          this.isPrefetching = false;
-          console.log('[Voice Pack] Audio pre-warmed in background for 0ms lag.');
+          await new Promise((resolve) => {
+            const audio = new Audio();
+            audio.preload = 'auto';
+            audio.src = data.audioUrl;
+            this.prewarmedAudio = audio;
+
+            const onReady = () => {
+              audio.removeEventListener('canplaythrough', onReady);
+              audio.removeEventListener('loadeddata', onReady);
+              resolve(true);
+            };
+            audio.addEventListener('canplaythrough', onReady);
+            audio.addEventListener('loadeddata', onReady);
+            setTimeout(resolve, 2500); // 2.5s audio element buffer timeout
+            audio.load();
+          });
+          console.log('[Voice Pack] Audio pre-warmed & buffered in memory.');
           if (this.pendingPlay) {
             this.pendingPlay = false;
-            this.playAudioInstance(audio, this.pendingOnStart, this.pendingOnEnd);
+            this.playAudioInstance(this.prewarmedAudio, this.pendingOnStart, this.pendingOnEnd);
           }
+          return true;
         }
-      })
-      .catch(err => {
+      } catch (err) {
         console.warn('[Voice Pack Prewarm Error]', err);
+      } finally {
         this.isPrefetching = false;
-      });
+      }
+      return false;
+    }
+
+    // Pre-warm the voice pack audio in background
+    prewarm(text) {
+      this.prewarmAsync(text);
     }
 
     async speak(text, onStart, onEnd, onLoading) {
@@ -545,8 +566,6 @@
         })
       });
 
-      clearInterval(cookingInterval);
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || `Server responded with ${response.status}`);
@@ -555,6 +574,20 @@
       const roastResult = await response.json();
       currentRoastPayload = roastResult;
 
+      // Coordinate: Only show roast result after voice is also ready!
+      const userKey = apiKey || localStorage.getItem('cooked_api_key');
+      if (userKey && userKey.trim() !== '') {
+        const fullSpeech = `${roastResult.diagnosis || ''}. ${roastResult.deep_roast || ''}. Final verdict: ${roastResult.lethal_one_liner || ''}. Prescribed action: ${roastResult.prescribed_l || ''}`;
+        cookingTerminal.textContent = "> Verdict reached! Synthesizing Durandham Jury voice audio...";
+
+        // Wait for voice to finish generation and buffering (with 5.5s safety timeout)
+        await Promise.race([
+          tts.prewarmAsync(fullSpeech),
+          new Promise(resolve => setTimeout(resolve, 5500))
+        ]);
+      }
+
+      clearInterval(cookingInterval);
       displayRoastResult(roastResult);
 
     } catch (err) {
